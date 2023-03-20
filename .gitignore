@@ -1,0 +1,13 @@
+.vim
+.idea
+node_modules
+logs
+tests_output
+
+# Debug config for Vimspector (Vim/Neovim)
+.vimspector.json
+
+# Vim's swap files
+*.swp
+*.swo
+.cache

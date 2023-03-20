@@ -1,0 +1,34 @@
+{
+  "name": "@nightwatch/angular",
+  "version": "0.0.1",
+  "description": "Component testing plugin that integrates Angular with Nightwatch.js",
+  "main": "index.js",
+  "scripts": {
+    "eslint": "eslint index.js src nightwatch",
+    "test": "nightwatch --env vue --headless",
+    "test-unit": "mocha test/unit",
+    "test-react": "nightwatch --env react --headless"
+  },
+  "keywords": [
+    "nightwatch",
+    "nightwatch.js",
+    "angular",
+    "component test",
+    "component-testing"
+  ],
+  "author": "Binayak Ghosh",
+  "license": "MIT",
+  "dependencies": {
+    "assertion-error": "^1.1.0",
+    "mkdirp": "^1.0.4"
+  },
+  "files": [
+    "nightwatch",
+    "src",
+    "index.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+  }
+}
