@@ -1,9 +1,7 @@
-import { CommonModule } from '@angular/common'
-import { Component, ErrorHandler, EventEmitter, Injectable, SimpleChange, SimpleChanges, Type, OnChanges } from '@angular/core'
+import { CommonModule } from '@angular/common';
+import { Component, Injectable, Type } from '@angular/core'
 import {
-  ComponentFixture,
   getTestBed,
-  TestModuleMetadata,
   TestBed,
   TestComponentRenderer,
 } from '@angular/core/testing'
@@ -12,7 +10,7 @@ import {
   platformBrowserDynamicTesting,
 } from '@angular/platform-browser-dynamic/testing'
 
-import {MyFromComponent} from '/Users/binayakghosh/projects/angular-test/angular-test/src/app/my-from/my-from.component'
+import MountComponent from './mountPoint'
 
 @Injectable()
 export class NightWatchAngularRenderer extends TestComponentRenderer {
@@ -37,7 +35,7 @@ export class NightWatchAngularRenderer extends TestComponentRenderer {
   }
 }
 
-@Component({ selector: 'cy-wrapper-component', template: '' })
+@Component({ selector: 'nightwatch-component-root', template: '' })
 class WrapperComponent { }
 
 /**
@@ -135,4 +133,4 @@ getTestBed().initTestEnvironment(
   },
 )
 
-const componentFixture = initTestBed(MyFromComponent, {})
+const componentFixture = initTestBed(MountComponent, {})

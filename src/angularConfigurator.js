@@ -1,5 +1,5 @@
 const fs = require('fs').promises;
-
+const path = require('path');
 
 class AngularConfigurator {
     static angularDevkitModules = [
@@ -9,7 +9,7 @@ class AngularConfigurator {
         '@angular-devkit/core/src/index.js',
     ];
 
-    constructor({projectRoot}) {
+    constructor({ projectRoot }) {
         this.projectRoot = projectRoot;
     }
 
@@ -19,7 +19,7 @@ class AngularConfigurator {
             { getCommonConfig },
             { getStylesConfig },
             { logging },
-        ] = AngularConfig.angularDevkitModules.map((dep) => {
+        ] = AngularConfigurator.angularDevkitModules.map((dep) => {
             try {
                 const depPath = require.resolve(dep, { paths: [this.projectRoot] })
 
@@ -76,13 +76,25 @@ class AngularConfigurator {
         }
     }
 
-    getAngularBuildOptions(buildOptions) {
+    async generateTsConfig() {
+        const nightwatchCachePath =  path.join(this.projectRoot, 'nightwatch', '.cache');
+
+        const tsConfigContent = JSON.stringify({
+            extends: path.join(this.projectRoot, 'tsconfig.json'),
+            include: [`${nightwatchCachePath}/*.ts`]
+        })
+
+        const tsConfigPath = path.join(nightwatchCachePath, 'tsconfig.json');
+
+        await fs.writeFile(tsConfigPath, tsConfigContent)
+
+        return tsConfigPath
+    }
+
+    getAngularBuildOptions(buildOptions, tsConfig) {
 
         //TODO: go through all the configs and check if there are unnecessary ones
-
-        // Default options are derived from the @angular-devkit/build-angular browser builder, with some options from
-        // the serve builder thrown in for development.
-        // see: https://github.com/angular/angular-cli/blob/main/packages/angular_devkit/build_angular/src/builders/browser/schema.json
+        // Ref: https://github.com/angular/angular-cli/blob/main/packages/angular_devkit/build_angular/src/builders/browser/schema.json
         return {
             outputPath: 'dist/angular-app',
             assets: [],
@@ -122,6 +134,7 @@ class AngularConfigurator {
             aot: false,
             outputHashing: 'none',
             budgets: undefined,
+            tsConfig
         }
     }
 
@@ -146,8 +159,6 @@ class AngularConfigurator {
             framework.importPath = frameworkPathRoot
             framework.packageJson = require(frameworkJsonPath)
 
-            console.log('Framework: Successfully sourced framework - ', framework)
-
             return framework
         } catch (e) {
             console.log('Framework: Failed to source framework - ', e)
@@ -157,11 +168,7 @@ class AngularConfigurator {
         }
     }
 
-    // Source the webpack module from the provided framework or projectRoot. We override the module resolution
-    // so that other packages that import webpack resolve to the version we found.
-    // If none is found, we fallback to the bundled version in '@cypress/webpack-batteries-included-preprocessor'.
     sourceWebpack(framework) {
-
         // TODO: make sure this is always present
         const searchRoot = framework.importPath
 
@@ -188,16 +195,16 @@ class AngularConfigurator {
         //TODO: check for compatible versions
         // webpack.majorVersion = getMajorVersion(webpack.packageJson, [4, 5])
 
-        console.log('Webpack: Successfully sourced webpack - ', webpack)
+        console.log('Webpack: Successfully sourced webpack - ', webpack.importPath)
 
         return webpack
     }
 
     requireAngularWebpackDependencies() {
         const framework = this.sourceFramework(this.projectRoot)
-        const webpack = sourceWebpack(framework)
-        const webpackDevServer = sourceWebpackDevServer(framework)
-        const htmlWebpackPlugin = sourceHtmlWebpackPlugin(framework)
+        const webpack = this.sourceWebpack(framework)
+        const webpackDevServer = this.sourceWebpackDevServer(framework)
+        const htmlWebpackPlugin = this.sourceHtmlWebpackPlugin(framework)
 
         return {
             framework,
@@ -235,9 +242,30 @@ class AngularConfigurator {
         webpackDevServer.module = require(webpackDevServer.importPath)
         // webpackDevServer.majorVersion = getMajorVersion(webpackDevServer.packageJson, [3, 4]);
 
-        console.log('WebpackDevServer: Successfully sourced webpack-dev-server - ', webpackDevServer)
+        console.log('WebpackDevServer: Successfully sourced webpack-dev-server - ', webpackDevServer.importPath);
 
         return webpackDevServer
+    }
+
+    createFakeContext(projectRoot, defaultProjectConfig, logging) {
+        const logger = new logging.Logger('nightwatch-angular-plugin')
+
+        const context = {
+            target: {
+                project: 'angular',
+            },
+            workspaceRoot: projectRoot,
+            getProjectMetadata: () => {
+                return {
+                    root: defaultProjectConfig.root,
+                    sourceRoot: defaultProjectConfig.sourceRoot,
+                    projectType: 'application',
+                }
+            },
+            logger,
+        }
+
+        return context
     }
 
     sourceHtmlWebpackPlugin(framework) {
@@ -273,9 +301,12 @@ class AngularConfigurator {
 
         const projectConfig = await this.getProjectConfig();
 
-        const buildOptions = this.getAngularBuildOptions(projectConfig.buildOptions);
+        // needed to add nightwatch specific files to compilation path
+        const tsConfig = await this.generateTsConfig();
 
-        const context = createFakeContext(this.projectRoot, projectConfig, logging);
+        const buildOptions = this.getAngularBuildOptions(projectConfig.buildOptions, tsConfig);
+
+        const context = this.createFakeContext(this.projectRoot, projectConfig, logging);
 
         const { config } = await generateBrowserWebpackConfigFromContext(
             buildOptions,

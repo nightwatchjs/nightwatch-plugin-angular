@@ -20,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "assertion-error": "^1.1.0",
+    "html-webpack-plugin": "^5.5.0",
     "mkdirp": "^1.0.4"
   },
   "files": [
@@ -28,7 +29,5 @@
     "index.js",
     "README.md",
     "LICENSE"
-  ],
-  "devDependencies": {
-  }
+  ]
 }

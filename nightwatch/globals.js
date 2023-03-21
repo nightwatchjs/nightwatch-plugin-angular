@@ -8,7 +8,7 @@ module.exports = {
 
   async before(settings) {
     if (!settings.parallel_mode && !settings.testWorkersEnabled) {
-      await setup(this, settings);
+      await setup(settings);
     }
   },
 

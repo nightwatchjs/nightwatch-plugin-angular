@@ -1,27 +1,23 @@
-class WebpackController {
-    constructor(config, angularSettings) {
-        this.webpackConfig = config;
-        this.angularSettings = angularSettings;
-    }
+const fs = require('fs');
+const path = require('path');
 
+
+class WebpackController {
+    constructor(config, settings) {
+        this.webpackConfig = config;
+        this.angularSettings = settings.angular || {};
+        this.devServerSettings = settings.webpack_dev_server || {};
+    }
 
     webpackDevServer(compiler) {
         const WebpackDevServer = this.webpackConfig.sourceWebpackModulesResult.webpackDevServer.module;
 
         const webpackDevServerConfig = {
             host: '127.0.0.1',
-            port: 'auto',
-            // @ts-ignore
-            // devServer: {
-            //     allowedHosts: 'auto',
-            //     client: {
-            //         overlay: true,
-            //         reconnect: true,
-            //     },
-            // },
+            port: this.devServerSettings.port || 5173,
             devMiddleware: {
                 // publicPath: '__/component_testing/',
-                stats: 'verbose',
+                stats: 'minimal',
                 writeToDisk: true
             },
             hot: false,
@@ -50,7 +46,7 @@ class WebpackController {
 
         this.webpackConfig.frameworkConfig.entry = {
             polyfills: ['zone.js'],
-            'angular-bootstrap': 'src/main.ts',
+            'angular-bootstrap': 'nightwatch/.cache/bootstrap.ts',
         };
 
         const htmlWebpackPlugin = this.webpackConfig.sourceWebpackModulesResult.htmlWebpackPlugin.module;
