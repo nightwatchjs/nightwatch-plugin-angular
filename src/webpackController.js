@@ -59,15 +59,20 @@ class WebpackController {
     }
 
     async start() {
-        const { server, compiler } = await this.createWebpackDevServer()
-
+        const { server, compiler } = await this.createWebpackDevServer();
         global.webpackDevServer = server;
+
+        const waitCompilation = new Promise((resolve, reject) => {
+            compiler.hooks.done.tap('done', resolve);
+        })
 
         await server.start();
 
         if (!server.options.port) {
             throw new Error(`Failed to start webpack-dev-server on port: ${server.options.port}`);
         }
+
+        return waitCompilation;
     }
 
     static async stop() {
