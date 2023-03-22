@@ -1,8 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, Injectable, Type } from '@angular/core'
+import { Injectable } from '@angular/core'
 import {
   getTestBed,
-  TestBed,
   TestComponentRenderer,
 } from '@angular/core/testing'
 import {
@@ -35,36 +34,6 @@ export class NightWatchAngularRenderer extends TestComponentRenderer {
   }
 }
 
-@Component({ selector: 'nightwatch-component-root', template: '' })
-class WrapperComponent { }
-
-/**
- * Returns the Component if Type<T> or creates a WrapperComponent
- *
- * @param {Type<T> | string} component The component you want to create a fixture of
- * @returns {Type<T> | WrapperComponent}
- */
-function createComponentFixture<T> (
-  component: Type<T> | string,
-): Type<T | WrapperComponent> {
-  if (typeof component === 'string') {
-    // getTestBed().overrideTemplate is available in v14+
-    // The static TestBed.overrideTemplate is available across versions
-    TestBed.overrideTemplate(WrapperComponent, component)
-
-    return WrapperComponent
-  }
-
-  return component
-}
-
-/**
- * Bootstraps the TestModuleMetaData passed to the TestBed
- *
- * @param {Type<T>} component Angular component being mounted
- * @param {MountConfig} config TestBed configuration passed into the mount function
- * @returns {MountConfig} MountConfig
- */
 function bootstrapModule (
   component: any,
   config: any,
@@ -97,13 +66,6 @@ function bootstrapModule (
   return testModuleMetaData
 }
 
-/**
- * Initializes the TestBed
- *
- * @param {Type<T> | string} component Angular component being mounted or its template
- * @param {MountConfig} config TestBed configuration passed into the mount function
- * @returns {Type<T>} componentFixture
- */
 function initTestBed<T> (
   component: any,
   config: any,

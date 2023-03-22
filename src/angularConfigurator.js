@@ -141,8 +141,6 @@ class AngularConfigurator {
   // Source the users framework from the provided projectRoot. The framework, if available, will serve
   // as the resolve base for webpack dependency resolution.
   sourceFramework(projectRoot) {
-    console.log(`Framework: Attempting to source framework for angular from: ${projectRoot}`);
-
     const sourceOfWebpack = '@angular-devkit/build-angular';
 
 
@@ -161,6 +159,7 @@ class AngularConfigurator {
 
       return framework;
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log('Framework: Failed to source framework - ', e);
 
       // TODO: figure out if we should throw error here
@@ -172,32 +171,17 @@ class AngularConfigurator {
     // TODO: make sure this is always present
     const searchRoot = framework.importPath;
 
-    console.log('Webpack: Attempting to source webpack from %s', searchRoot);
+    const webpackJsonPath = require.resolve('webpack/package.json', {
+      paths: [searchRoot]
+    });
 
-    const webpack = {};
-    let webpackJsonPath;
+    const importPath = path.dirname(webpackJsonPath);
 
-    try {
-      webpackJsonPath = require.resolve('webpack/package.json', {
-        paths: [searchRoot]
-      });
-    } catch (e) {
-      console.log('Webpack: Failed to source webpack - ', e);
-      throw e;
-
-
-    }
-
-    webpack.importPath = path.dirname(webpackJsonPath);
-    webpack.packageJson = require(webpackJsonPath);
-    webpack.module = require(webpack.importPath);
-
-    //TODO: check for compatible versions
-    // webpack.majorVersion = getMajorVersion(webpack.packageJson, [4, 5])
-
-    console.log('Webpack: Successfully sourced webpack - ', webpack.importPath);
-
-    return webpack;
+    return {
+      importPath,
+      packageJson: require(webpackJsonPath),
+      module: require(importPath)
+    };
   }
 
   requireAngularWebpackDependencies() {
@@ -219,21 +203,15 @@ class AngularConfigurator {
   sourceWebpackDevServer(framework) {
     const searchRoot = framework.importPath;
 
-    console.log('WebpackDevServer: Attempting to source webpack-dev-server from', searchRoot);
-
     const webpackDevServer = {};
-    let webpackDevServerJsonPath;
 
-
-    webpackDevServerJsonPath = require.resolve('webpack-dev-server/package.json', {
+    const webpackDevServerJsonPath = require.resolve('webpack-dev-server/package.json', {
       paths: [searchRoot]
     });
 
     webpackDevServer.importPath = path.dirname(webpackDevServerJsonPath);
     webpackDevServer.packageJson = require(webpackDevServerJsonPath);
     webpackDevServer.module = require(webpackDevServer.importPath);
-
-    console.log('WebpackDevServer: Successfully sourced webpack-dev-server - ', webpackDevServer.importPath);
 
     return webpackDevServer;
   }

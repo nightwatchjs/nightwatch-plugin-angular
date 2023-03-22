@@ -35,24 +35,29 @@ async function verifyAngularSettings(angularSettings) {
 
 
 module.exports = async function(settings) {
-
   await verifyAngularSettings(settings.angular);
 
-  const nightwatchCache = path.join(settings.angular.projectRoot, 'nightwatch', '.cache');
+  // eslint-disable-next-line no-console
+  console.log('Starting webpack-dev-server...');
+
+  const nightwatchCachePath = path.join(settings.angular.projectRoot, 'nightwatch', '.cache');
 
   try {
-    await fs.stat(nightwatchCache);
+    await fs.stat(nightwatchCachePath);
   } catch (err) {
-    await mkdirp(nightwatchCache);
+    await mkdirp(nightwatchCachePath);
   }
 
   // write empty file as placeholder, will be replaced before mount
-  await fs.writeFile(path.join(nightwatchCache, 'bootstrap.ts'), '');
+  await fs.writeFile(path.join(nightwatchCachePath, 'bootstrap.ts'), '');
 
   const configurator = new AngularConfigurator(settings.angular);
   const webpackConfig = await configurator.createWebpackConfig();
 
   const webpackController = new WebpackController(webpackConfig, settings);
   await webpackController.start();
+
+  // eslint-disable-next-line no-console
+  console.log('Webpack dev server started.');
 };
 

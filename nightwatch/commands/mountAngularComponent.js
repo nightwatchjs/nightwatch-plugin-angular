@@ -62,6 +62,17 @@ module.exports = class Command {
 
     await fs.copyFile(bootstrapFilePath, path.join(nightwatchCacheDir, 'bootstrap.ts'));
 
+    // Wait for webpack compilation to finish
+    if (global.webpackCompiler) {
+      const waitCompilation = new Promise((resolve, reject) => {
+        global.webpackCompiler.hooks.done.tap('done', resolve);
+      });
+
+      await waitCompilation;
+    } else {
+      throw new Error('Webpack Compiler not initialized');
+    }
+
     await this.api.navigateTo(launchUrl);
 
     if (this.client.argv.debug) {
@@ -69,6 +80,24 @@ module.exports = class Command {
     } else if (this.client.argv.preview) {
       await this.api.pause();
     }
+
+    // const result = await this.api.execute(function() {
+    //   // eslint-disable-next-line no-undef
+    //   return document.querySelectorAll('#root0')[0].firstElementChild;
+    // });
+
+    // if (!result) {
+    //   const err = this.getError('Could not mount the component.');
+
+    //   return err;
+    // }
+
+    // const componentInstance = this.api.createElement(result, {
+    //   isComponent: true,
+    //   type: 'angular'
+    // });
+
+    // cb(componentInstance);
 
     return true;
   }
