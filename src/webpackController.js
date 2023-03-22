@@ -1,8 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-
-
 class WebpackController {
+  static publicPath = '/__/nightwatch';
+
   constructor(config, settings) {
     this.webpackConfig = config;
     this.angularSettings = settings.angular || {};
@@ -16,7 +14,7 @@ class WebpackController {
       host: '127.0.0.1',
       port: this.devServerSettings.port || 5173,
       devMiddleware: {
-        // publicPath: '__/component_testing/',
+        publicPath: WebpackController.publicPath,
         stats: 'minimal',
         writeToDisk: true
       },
@@ -50,9 +48,13 @@ class WebpackController {
     };
 
     const htmlWebpackPlugin = this.webpackConfig.sourceWebpackModulesResult.htmlWebpackPlugin.module;
+
     this.webpackConfig.frameworkConfig.plugins.push(new htmlWebpackPlugin({
       template: this.angularSettings.htmlTemplate || 'src/index.html'
     }));
+
+    this.webpackConfig.frameworkConfig.output.publicPath =  WebpackController.publicPath;
+
     const webpackCompiler = webpack(this.webpackConfig.frameworkConfig);
 
     return this.webpackDevServer(webpackCompiler);
@@ -61,6 +63,7 @@ class WebpackController {
   async start() {
     const {server, compiler} = await this.createWebpackDevServer();
     global.webpackDevServer = server;
+    global.webpackCompiler = compiler;
 
     const waitCompilation = new Promise((resolve, reject) => {
       compiler.hooks.done.tap('done', resolve);

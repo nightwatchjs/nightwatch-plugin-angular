@@ -29,17 +29,16 @@ module.exports = class Command {
 
   async command(componentName, opts = {}, cb = function() {}) {
     let launchUrl = '';
-    const {webpack_dev_server} = this.client.settings;
 
-    if (webpack_dev_server) {
-      const port = webpack_dev_server.port || 5173;
-      launchUrl = `http://localhost:${port}`;
-    } else if (this.api.globals.launchUrl) {
+    if (this.api.globals.launchUrl) {
       launchUrl = this.api.globals.launchUrl;
     }
 
     if (global.webpackDevServer) {
-      launchUrl = `http://localhost:${global.webpackDevServer.options.port}`;
+      const port = global.webpackDevServer.options.port || 5173;
+      launchUrl = `http://localhost:${port}/__/nightwatch`;
+    } else {
+      throw new Error('Webpack Dev Server not running');
     }
 
     const nightwatchCacheDir = path.join(this.pluginSettings.projectRoot, 'nightwatch', '.cache');
