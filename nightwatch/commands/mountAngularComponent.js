@@ -1,6 +1,6 @@
 const AssertionError = require('assertion-error');
 const path = require('path');
-const fs = require('fs').promises
+const fs = require('fs').promises;
 
 class NightwatchMountError extends AssertionError {
   constructor(message) {
@@ -25,25 +25,6 @@ module.exports = class Command {
     ];
 
     return err;
-  }
-
-  async mountComponent(componentName, opts, isRetry = false) {
-    this.api.execute(function (innerHTML) {
-      function onReady(fn) {if (document.readyState === 'complete' || document.readyState === 'interactive') {setTimeout(fn)} else {document.addEventListener('DOMContentLoaded', fn)}}
-      onReady(function() {
-        var scriptTag = Object.assign(document.createElement('script'), {
-          type: 'module',
-          innerHTML
-        });
-        document.body.appendChild(scriptTag);
-      });
-    }, [Command._buildScript(componentName, opts)], async (result) => {
-      if (result && (result.error instanceof Error) && !isRetry) {
-        return this.mountComponent(componentName, opts, true);
-      }
-
-      return result;
-    });
   }
 
   async command(componentName, opts = {}, cb = function() {}) {
@@ -76,7 +57,7 @@ module.exports = class Command {
       const MountPoint = (MountComponent as any)[classes[0]];
 
       export default MountPoint;
-    `)
+    `);
 
     const bootstrapFilePath = path.join(__dirname, '../../src/bootstrap.ts');
 

@@ -4,4 +4,4 @@ const teardown = require('./src/teardown');
 module.exports = {
   setup,
   teardown
-}
+};

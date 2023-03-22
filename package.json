@@ -29,5 +29,8 @@
     "index.js",
     "README.md",
     "LICENSE"
-  ]
+  ],
+  "devDependencies": {
+    "eslint": "^8.36.0"
+  }
 }

@@ -3,7 +3,7 @@
     "eslint:recommended"
   ],
   "parserOptions": {
-    "ecmaVersion": 2018,
+    "ecmaVersion": 2022,
     "sourceType": "module",
     "ecmaFeatures": {
       "jsx": false
@@ -38,10 +38,7 @@
     "no-debugger": 1,
     "semi": [
       "error",
-      "always",
-      {
-        "omitLastInOneLineBlock": true
-      }
+      "always"
     ],
     "no-trailing-spaces": 0,
     "no-else-return": 2,
@@ -110,12 +107,11 @@
     "Proxy": true,
     "Set": true,
     "Reflect": true,
-    "document": "readonly",
-    "window": "readonly",
     "element": "readonly",
     "by": "readonly",
     "expect": "readonly",
     "browser": "readonly",
+    "app": "readonly",
     "Key": "readonly"
   }
 }
