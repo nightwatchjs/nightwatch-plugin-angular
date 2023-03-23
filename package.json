@@ -16,9 +16,11 @@
     "component test",
     "component-testing"
   ],
+  "types": "index.d.ts",
   "author": "Binayak Ghosh",
   "license": "MIT",
   "dependencies": {
+    "@types/nightwatch": "^2.3.22",
     "assertion-error": "^1.1.0",
     "html-webpack-plugin": "^5.5.0",
     "mkdirp": "^1.0.4"
