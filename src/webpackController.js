@@ -82,8 +82,8 @@ class WebpackController {
   }
 
   static async stop() {
-    if (global.webpackDevServer) {
-      await global.webpackDevServer.stop();
+    if (WebpackController.devServerInstance) {
+      await  WebpackController.devServerInstance.stop();
 
       WebpackController.devServerInstance = null;
       WebpackController.compilerInstance = null;
