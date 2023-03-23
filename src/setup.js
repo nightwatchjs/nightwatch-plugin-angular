@@ -4,7 +4,8 @@ const mkdirp = require('mkdirp');
 const AngularConfigurator = require('./angularConfigurator');
 const WebpackController = require('./webpackController');
 
-async function verifyAngularSettings(angularSettings) {
+
+async function _verifyAngularSettings(angularSettings) {
   try {
     if (angularSettings && angularSettings.projectRoot) {
       if ((await fs.stat(angularSettings.projectRoot)).isDirectory()) {
@@ -15,32 +16,27 @@ async function verifyAngularSettings(angularSettings) {
     // nothing
   }
 
-  const error = new Error('Missing angularRoot');
+  const error = new Error('Missing projectRoot for angular plugin');
   const code = `:
 
     // nightwatch.conf.js
 
     module.exports = {
       plugins: ['@nightwatch/angular'],
-      angular: {
+      '@nightwatch/angular': {
         projectRoot: 'path/to/angular/project'
       }
     }
     `;
-  error.help = ['Please ensure that "angularRoot" is configured properly in your Nightwatch config file ' + code];
+  error.help = ['Please ensure that "projectRoot" is configured properly in your Nightwatch config file ' + code];
   error.link = 'https://nightwatchjs.org/guide/component-testing/testing-angular-components.html';
 
   throw error;
 }
 
 
-module.exports = async function(settings) {
-  await verifyAngularSettings(settings.angular);
-
-  // eslint-disable-next-line no-console
-  console.log('Starting webpack-dev-server...');
-
-  const nightwatchCachePath = path.join(settings.angular.projectRoot, 'nightwatch', '.cache');
+async function _addSupportFiles(projectRoot) {
+  const nightwatchCachePath = path.join(projectRoot, 'nightwatch', '.cache');
 
   try {
     await fs.stat(nightwatchCachePath);
@@ -51,8 +47,23 @@ module.exports = async function(settings) {
   // write empty file as placeholder, will be replaced before mount
   await fs.writeFile(path.join(nightwatchCachePath, 'bootstrap.ts'), '');
 
-  const configurator = new AngularConfigurator(settings.angular);
-  const webpackConfig = await configurator.createWebpackConfig();
+  // copy default template
+  const rendererPath = path.join(__dirname, './renderer.html');
+  await fs.copyFile(rendererPath, path.join(nightwatchCachePath, 'renderer.html'));
+}
+
+
+module.exports = async function(settings) {
+  const angularSettings = settings['@nightwatch/angular'];
+  await _verifyAngularSettings(angularSettings);
+
+  // eslint-disable-next-line no-console
+  console.log('Starting webpack-dev-server...');
+
+  await _addSupportFiles(angularSettings);
+
+  const angularConfigurator = new AngularConfigurator(angularSettings);
+  const webpackConfig = await angularConfigurator.createWebpackConfig();
 
   const webpackController = new WebpackController(webpackConfig, settings);
   await webpackController.start();

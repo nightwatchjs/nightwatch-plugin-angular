@@ -1,9 +1,10 @@
 class WebpackController {
   static publicPath = '/__/nightwatch';
+  static defaultRenderer = 'nightwatch/.catch/renderer.html';
 
   constructor(config, settings) {
     this.webpackConfig = config;
-    this.angularSettings = settings.angular || {};
+    this.angularSettings = settings['@nightwatch/angular'] || {};
     this.devServerSettings = settings.webpack_dev_server || {};
   }
 
@@ -50,7 +51,7 @@ class WebpackController {
     const htmlWebpackPlugin = this.webpackConfig.sourceWebpackModulesResult.htmlWebpackPlugin.module;
 
     this.webpackConfig.frameworkConfig.plugins.push(new htmlWebpackPlugin({
-      template: this.angularSettings.htmlTemplate || 'src/index.html'
+      template: this.angularSettings.htmlTemplate || WebpackController.defaultRenderer
     }));
 
     this.webpackConfig.frameworkConfig.output.publicPath =  WebpackController.publicPath;

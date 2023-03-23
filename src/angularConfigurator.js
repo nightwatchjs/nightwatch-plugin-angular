@@ -13,7 +13,7 @@ class AngularConfigurator {
     this.projectRoot = projectRoot;
   }
 
-  requireAngularDevkitModules() {
+  _loadAngularDevkitModules() {
     const [
       {generateBrowserWebpackConfigFromContext},
       {getCommonConfig},
@@ -37,19 +37,22 @@ class AngularConfigurator {
     };
   }
 
-  async getAngularJson() {
 
-    // TODO: find angular.json in parent folder also
-    const angularJsonPath = `${this.projectRoot}${path.sep}angular.json`;
+  async _loadAngularJson() {
+    const angularJsonPath = path.resolve(this.projectRoot, 'angular.json');
 
-    // TODO: first check if angular json is present else throw and error
-    const angularJson = await fs.readFile(angularJsonPath, 'utf8');
+    try {
+      const angularJson = await fs.readFile(angularJsonPath, 'utf8');
 
-    return JSON.parse(angularJson);
+      return JSON.parse(angularJson);
+    } catch (err) {
+      throw new Error(`Failed to load angular.json from angular project: ${angularJsonPath}`);
+    }
   }
 
-  async getProjectConfig() {
-    const angularJson = await this.getAngularJson();
+
+  async _getProjectConfig() {
+    const angularJson = await this._loadAngularJson();
 
     let {defaultProject} = angularJson;
 
@@ -66,17 +69,19 @@ class AngularConfigurator {
     const {architect, root, sourceRoot} = defaultProjectConfig;
     const {build} = architect;
 
+    const developmentConfiguration = build.configurations && build.configurations.development ? build.configurations.development : {};
+
     return {
       root,
       sourceRoot,
       buildOptions: {
         ...build.options,
-        ...build.configurations?.development || {}
+        ...developmentConfiguration
       }
     };
   }
 
-  async generateTsConfig() {
+  async _generateTsConfig() {
     const nightwatchCachePath =  path.join(this.projectRoot, 'nightwatch', '.cache');
 
     const tsConfigContent = JSON.stringify({
@@ -91,7 +96,7 @@ class AngularConfigurator {
     return tsConfigPath;
   }
 
-  getAngularBuildOptions(buildOptions, tsConfig) {
+  _getAngularBuildOptions(buildOptions, tsConfig) {
 
     //TODO: go through all the configs and check if there are unnecessary ones
     // Ref: https://github.com/angular/angular-cli/blob/main/packages/angular_devkit/build_angular/src/builders/browser/schema.json
@@ -138,9 +143,8 @@ class AngularConfigurator {
     };
   }
 
-  // Source the users framework from the provided projectRoot. The framework, if available, will serve
-  // as the resolve base for webpack dependency resolution.
-  sourceFramework(projectRoot) {
+
+  _sourceFramework(projectRoot) {
     const sourceOfWebpack = '@angular-devkit/build-angular';
 
 
@@ -167,7 +171,7 @@ class AngularConfigurator {
     }
   }
 
-  sourceWebpack(framework) {
+  _sourceWebpack(framework) {
     // TODO: make sure this is always present
     const searchRoot = framework.importPath;
 
@@ -184,23 +188,7 @@ class AngularConfigurator {
     };
   }
 
-  requireAngularWebpackDependencies() {
-    const framework = this.sourceFramework(this.projectRoot);
-    const webpack = this.sourceWebpack(framework);
-    const webpackDevServer = this.sourceWebpackDevServer(framework);
-    const htmlWebpackPlugin = this.sourceHtmlWebpackPlugin(framework);
-
-    return {
-      framework,
-      webpack,
-      webpackDevServer,
-      htmlWebpackPlugin
-    };
-  }
-
-  // Source the webpack-dev-server module from the provided framework or projectRoot.
-  // If none is found, we fallback to the version bundled with this package.
-  sourceWebpackDevServer(framework) {
+  _sourceWebpackDevServer(framework) {
     const searchRoot = framework.importPath;
 
     const webpackDevServer = {};
@@ -216,7 +204,41 @@ class AngularConfigurator {
     return webpackDevServer;
   }
 
-  createFakeContext(projectRoot, defaultProjectConfig, logging) {
+
+  _sourceHtmlWebpackPlugin() {
+    const htmlWebpackPlugin = {};
+    let htmlWebpackPluginJsonPath;
+
+    try {
+      htmlWebpackPluginJsonPath = require.resolve('html-webpack-plugin/package.json');
+
+      htmlWebpackPlugin.packageJson = require(htmlWebpackPluginJsonPath);
+    } catch (e) {
+      // TODO: handle error, maybe fall back to bundled version
+    }
+
+    htmlWebpackPlugin.importPath = path.dirname(htmlWebpackPluginJsonPath),
+    htmlWebpackPlugin.module = require(htmlWebpackPlugin.importPath);
+
+    return htmlWebpackPlugin;
+  }
+
+  _requireAngularWebpackDependencies() {
+    const framework = this._sourceFramework(this.projectRoot);
+    const webpack = this._sourceWebpack(framework);
+    const webpackDevServer = this._sourceWebpackDevServer(framework);
+    const htmlWebpackPlugin = this._sourceHtmlWebpackPlugin(framework);
+
+    return {
+      framework,
+      webpack,
+      webpackDevServer,
+      htmlWebpackPlugin
+    };
+  }
+
+
+  _createFakeContext(projectRoot, defaultProjectConfig, logging) {
     const logger = new logging.Logger('nightwatch-angular-plugin');
 
     const context = {
@@ -237,27 +259,6 @@ class AngularConfigurator {
     return context;
   }
 
-  sourceHtmlWebpackPlugin(framework) {
-    const searchRoot = framework.importPath;
-
-    const htmlWebpackPlugin = {};
-    let htmlWebpackPluginJsonPath;
-
-    try {
-      htmlWebpackPluginJsonPath = require.resolve('html-webpack-plugin/package.json');
-
-      htmlWebpackPlugin.packageJson = require(htmlWebpackPluginJsonPath);
-      // Check that they're not using v3 of html-webpack-plugin. Since we should be the only consumer of it,
-      // we shouldn't be concerned with using our own copy if they've shipped w/ an earlier version
-    } catch (e) {
-      // TODO: handle error, maybe fall back to bundled version
-    }
-
-    htmlWebpackPlugin.importPath = path.dirname(htmlWebpackPluginJsonPath),
-    htmlWebpackPlugin.module = require(htmlWebpackPlugin.importPath);
-
-    return htmlWebpackPlugin;
-  }
 
   async createWebpackConfig() {
     // Load necessary modules from angular-devkit 
@@ -266,16 +267,16 @@ class AngularConfigurator {
       getCommonConfig,
       getStylesConfig,
       logging
-    } = this.requireAngularDevkitModules();
+    } = this._loadAngularDevkitModules();
 
-    const projectConfig = await this.getProjectConfig();
+    const projectConfig = await this._getProjectConfig();
 
     // needed to add nightwatch specific files to compilation path
-    const tsConfig = await this.generateTsConfig();
+    const tsConfig = await this._generateTsConfig();
 
-    const buildOptions = this.getAngularBuildOptions(projectConfig.buildOptions, tsConfig);
+    const buildOptions = this._getAngularBuildOptions(projectConfig.buildOptions, tsConfig);
 
-    const context = this.createFakeContext(this.projectRoot, projectConfig, logging);
+    const context = this._createFakeContext(this.projectRoot, projectConfig, logging);
 
     const {config} = await generateBrowserWebpackConfigFromContext(
       buildOptions,
@@ -290,7 +291,7 @@ class AngularConfigurator {
 
     delete config.entry.main;
 
-    return {frameworkConfig: config, sourceWebpackModulesResult: this.requireAngularWebpackDependencies(this.projectRoot)};
+    return {frameworkConfig: config, sourceWebpackModulesResult: this._requireAngularWebpackDependencies(this.projectRoot)};
   }
 }
 
