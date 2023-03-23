@@ -3,8 +3,8 @@
   <a href="https://nightwatchjs.org" target="_blank">
   <img alt="Nightwatch.js Logo" src="https://raw.githubusercontent.com/nightwatchjs/nightwatch-plugin-react/main/.github/assets/nightwatch-logo.png" width=200 />
   </a>
-  <a href="https://angular.io/" target="_blank">
-  <img alt="Angular Logo" src="https://user-images.githubusercontent.com/2018070/227134674-1bc4b8fe-06f8-47c6-ac64-4a08da379909.png" width=230 style="margin-bottom: -10px;"/>
+  <a href="https://angular.io/" target="_blank" style="padding-left: 15px">
+  <img alt="Angular Logo" src="https://user-images.githubusercontent.com/2018070/227150972-6ba1dcca-c2d0-4a19-9858-c06cba10a179.png" width=185 />
   </a>
 </p>
 
