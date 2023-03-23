@@ -25,11 +25,12 @@ Update your [Nightwatch configuration](https://nightwatchjs.org/guide/configurat
 
 ```js
 module.exports = {
-  plugins: ['@nightwatch/angular']
+  plugins: ['@nightwatch/angular'],
 
   '@nightwatch/angular': {
     projectRoot: 'path/to/angular/project' // required
-  }
+  },
+
   // other nightwatch settings...
 }
 ```
