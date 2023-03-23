@@ -27,7 +27,7 @@ module.exports = class Command {
     return err;
   }
 
-  async command(componentName, opts = {}, cb = function() {}) {
+  async command(componentName, cb = function() {}) {
     let launchUrl = '';
 
     if (this.api.globals.launchUrl) {
@@ -81,24 +81,24 @@ module.exports = class Command {
       await this.api.pause();
     }
 
-    // const result = await this.api.execute(function() {
-    //   // eslint-disable-next-line no-undef
-    //   return document.querySelectorAll('#root0')[0].firstElementChild;
-    // });
+    const result = await this.api.execute(function() {
+      // eslint-disable-next-line no-undef
+      return document.querySelectorAll('#root0')[0].firstElementChild;
+    });
 
-    // if (!result) {
-    //   const err = this.getError('Could not mount the component.');
+    if (!result) {
+      const err = this.getError('Could not mount the component.');
 
-    //   return err;
-    // }
+      return err;
+    }
 
-    // const componentInstance = this.api.createElement(result, {
-    //   isComponent: true,
-    //   type: 'angular'
-    // });
+    const componentInstance = this.api.createElement(result, {
+      isComponent: true,
+      type: 'angular'
+    });
 
-    // cb(componentInstance);
+    cb(componentInstance);
 
-    return true;
+    return componentInstance;
   }
 };
