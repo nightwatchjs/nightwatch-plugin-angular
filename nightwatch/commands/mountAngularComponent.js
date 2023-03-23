@@ -28,7 +28,17 @@ module.exports = class Command {
     return err;
   }
 
-  async command(componentName, cb = function() {}) {
+  static _normaliseComponentPath(componentPath) {
+    const parts = path.parse(componentPath);
+
+    if (parts.ext === '.ts') {
+      return path.join(parts.dir, parts.name);
+    }
+
+    return componentPath;
+  }
+
+  async command(componentPath, cb = function() {}) {
     let launchUrl = '';
 
     if (this.api.globals.launchUrl) {
@@ -45,8 +55,9 @@ module.exports = class Command {
     const nightwatchCacheDir = path.join(this.pluginSettings.projectRoot, 'nightwatch', '.cache');
     const mountPointPath = path.join(nightwatchCacheDir, 'mountPoint.ts');
 
+    componentPath = 
     await fs.writeFile(mountPointPath, `
-      import  * as MountComponent from '${componentName}'
+      import  * as MountComponent from '${Command._normaliseComponentPath(componentPath)}'
 
       const classes = Object.keys(MountComponent)
 

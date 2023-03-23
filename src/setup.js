@@ -50,6 +50,13 @@ async function _addSupportFiles(projectRoot) {
   // copy default template
   const rendererPath = path.join(__dirname, './renderer.html');
   await fs.copyFile(rendererPath, path.join(nightwatchCachePath, 'renderer.html'));
+
+  try {
+    await fs.stat(path.join(nightwatchCachePath, 'mountPoint.ts'));
+    await fs.rm(path.join(nightwatchCachePath, 'mountPoint.ts'));
+  } catch (err) {
+    // nothing
+  }
 }
 
 

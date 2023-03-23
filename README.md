@@ -1,24 +1,61 @@
 # @nightwatch/angular
 <p align=center>
+  <a href="https://nightwatchjs.org" target="_blank">
   <img alt="Nightwatch.js Logo" src="https://raw.githubusercontent.com/nightwatchjs/nightwatch-plugin-react/main/.github/assets/nightwatch-logo.png" width=200 />
-  <img alt="Angular Logo" src="https://user-images.githubusercontent.com/2018070/226307536-067f0283-45ac-40ca-adb8-dce8cfb809a3.svg" width=200 />
+  </a>
+  <a href="https://angular.io/" target="_blank">
+  <img alt="Angular Logo" src="https://user-images.githubusercontent.com/2018070/227134674-1bc4b8fe-06f8-47c6-ac64-4a08da379909.png" width=230 style="margin-bottom: -10px;"/>
+  </a>
 </p>
 
-[![Build Status][build-badge]][build]
-[![version][version-badge]][package]
 [![Discord][discord-badge]][discord]
 [![MIT License][license-badge]][license]
 
 Official Nightwatch plugin which adds component testing support for Angular apps. It uses the [Webpack DevServer](https://vitejs.dev/) under the hood. Requires Nightwatch 2.4+
 
 
-```
+## Setup:
+Install nightwatch angular plugin in your project:
+
+```bash
 npm install @nightwatch/angular
 ```
 
-## Usage:
+Update your [Nightwatch configuration](https://nightwatchjs.org/guide/configuration/overview.html) and add the plugin to the list:
 
-Coming soon
+```js
+module.exports = {
+  plugins: ['@nightwatch/angular']
+
+  '@nightwatch/angular': {
+    projectRoot: 'path/to/angular/project' // required
+  }
+  // other nightwatch settings...
+}
+```
+*Note: For the plugin to function, you must configure the path to the root directory of your angular project.*
+
+
+## Usage
+
+This plugin includes a Nightwatch commands which can be used to mount Angular components.
+
+###  browser.mountComponent(`componentPath`, `[callback]`):
+**Parameters:**
+- `componentPath` – location of the component file (`/path/to/component/*.component`) to be mounted
+- `callback` – an optional callback function which will be called with the component element
+
+#### Example:
+```js
+
+it('Test Form Component', async function (browser) {
+  const component = await browser.mountAngularComponent('/src/components/Form.component');
+
+  expect(component).text.to.equal('form-component works!');
+});
+```
+
+
 
 ## License
 MIT
