@@ -156,8 +156,7 @@ class AngularConfigurator {
       });
       const frameworkPathRoot = path.dirname(frameworkJsonPath);
 
-      // Want to make sure we're sourcing this from the user's code. Otherwise we can
-      // warn and tell them they don't have their dependencies installed
+
       framework.importPath = frameworkPathRoot;
       framework.packageJson = require(frameworkJsonPath);
 

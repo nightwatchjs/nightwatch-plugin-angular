@@ -1,6 +1,7 @@
 const AssertionError = require('assertion-error');
 const path = require('path');
 const fs = require('fs').promises;
+const WebpackController = require('../../src/webpackController');
 
 class NightwatchMountError extends AssertionError {
   constructor(message) {
@@ -12,7 +13,7 @@ class NightwatchMountError extends AssertionError {
 
 module.exports = class Command {
   get pluginSettings() {
-    return this.client.settings['angular'] || {};
+    return this.client.settings['@nightwatch/angular'] || {};
   }
 
   getError(message) {
@@ -34,8 +35,8 @@ module.exports = class Command {
       launchUrl = this.api.globals.launchUrl;
     }
 
-    if (global.webpackDevServer) {
-      const port = global.webpackDevServer.options.port || 5173;
+    if (WebpackController.devServerInstance) {
+      const port = WebpackController.devServerInstance.options.port || 5173;
       launchUrl = `http://localhost:${port}/__/nightwatch`;
     } else {
       throw new Error('Webpack Dev Server not running');
@@ -63,9 +64,9 @@ module.exports = class Command {
     await fs.copyFile(bootstrapFilePath, path.join(nightwatchCacheDir, 'bootstrap.ts'));
 
     // Wait for webpack compilation to finish
-    if (global.webpackCompiler) {
+    if (WebpackController.compilerInstance) {
       const waitCompilation = new Promise((resolve, reject) => {
-        global.webpackCompiler.hooks.done.tap('done', resolve);
+        WebpackController.compilerInstance.hooks.done.tap('done', resolve);
       });
 
       await waitCompilation;

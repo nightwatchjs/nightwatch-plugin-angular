@@ -1,6 +1,9 @@
 class WebpackController {
   static publicPath = '/__/nightwatch';
-  static defaultRenderer = 'nightwatch/.catch/renderer.html';
+  static defaultRenderer = 'nightwatch/.cache/renderer.html';
+
+  static devServerInstance;
+  static compilerInstance;
 
   constructor(config, settings) {
     this.webpackConfig = config;
@@ -22,7 +25,6 @@ class WebpackController {
       hot: false,
       liveReload: true
     };
-
 
     const server = new WebpackDevServer(webpackDevServerConfig, compiler);
 
@@ -63,8 +65,8 @@ class WebpackController {
 
   async start() {
     const {server, compiler} = await this.createWebpackDevServer();
-    global.webpackDevServer = server;
-    global.webpackCompiler = compiler;
+    WebpackController.devServerInstance = server;
+    WebpackController.compilerInstance = compiler;
 
     const waitCompilation = new Promise((resolve, reject) => {
       compiler.hooks.done.tap('done', resolve);
@@ -82,6 +84,9 @@ class WebpackController {
   static async stop() {
     if (global.webpackDevServer) {
       await global.webpackDevServer.stop();
+
+      WebpackController.devServerInstance = null;
+      WebpackController.compilerInstance = null;
     }
   }
 }

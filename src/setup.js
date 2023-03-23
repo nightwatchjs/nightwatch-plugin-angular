@@ -60,7 +60,7 @@ module.exports = async function(settings) {
   // eslint-disable-next-line no-console
   console.log('Starting webpack-dev-server...');
 
-  await _addSupportFiles(angularSettings);
+  await _addSupportFiles(angularSettings.projectRoot);
 
   const angularConfigurator = new AngularConfigurator(angularSettings);
   const webpackConfig = await angularConfigurator.createWebpackConfig();
