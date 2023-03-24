@@ -41,7 +41,7 @@ module.exports = {
 
 This plugin includes a Nightwatch commands which can be used to mount Angular components.
 
-###  browser.mountAngularComponent(`componentPath`, `[callback]`):
+###  browser.mountComponent(`componentPath`, `[callback]`):
 **Parameters:**
 - `componentPath` – location of the component file (`/path/to/component/*.component`) to be mounted
 - `callback` – an optional callback function which will be called with the component element
@@ -50,7 +50,7 @@ This plugin includes a Nightwatch commands which can be used to mount Angular co
 ```js
 
 it('Test Form Component', async function (browser) {
-  const component = await browser.mountAngularComponent('/src/components/Form.component');
+  const component = await browser.mountComponent('/src/components/Form.component');
 
   expect(component).text.to.equal('form-component works!');
 });
