@@ -28,7 +28,7 @@ module.exports = {
   plugins: ['@nightwatch/angular'],
 
   '@nightwatch/angular': {
-    projectRoot: 'path/to/angular/project' // required
+    projectRoot: 'path/to/angular/project' // defaults to current directory
   },
 
   // other nightwatch settings...
@@ -41,7 +41,7 @@ module.exports = {
 
 This plugin includes a Nightwatch commands which can be used to mount Angular components.
 
-###  browser.mountComponent(`componentPath`, `[callback]`):
+###  browser.mountAngularComponent(`componentPath`, `[callback]`):
 **Parameters:**
 - `componentPath` – location of the component file (`/path/to/component/*.component`) to be mounted
 - `callback` – an optional callback function which will be called with the component element

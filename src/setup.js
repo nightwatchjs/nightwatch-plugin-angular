@@ -5,11 +5,17 @@ const AngularConfigurator = require('./angularConfigurator');
 const WebpackController = require('./webpackController');
 
 
-async function _verifyAngularSettings(angularSettings) {
+async function _parseAngularSettings(settings) {
+  settings['@nightwatch/angular'] = settings['@nightwatch/angular'] || {};
+  const angularSettings = settings['@nightwatch/angular'];
+
   try {
+    angularSettings.projectRoot = angularSettings.projectRoot || './'; // default to current directory
+    angularSettings.projectRoot = path.resolve(angularSettings.projectRoot);
+
     if (angularSettings && angularSettings.projectRoot) {
       if ((await fs.stat(angularSettings.projectRoot)).isDirectory()) {
-        return true;
+        return angularSettings;
       }
     }
   } catch (err) {
@@ -61,8 +67,7 @@ async function _addSupportFiles(projectRoot) {
 
 
 module.exports = async function(settings) {
-  const angularSettings = settings['@nightwatch/angular'];
-  await _verifyAngularSettings(angularSettings);
+  const angularSettings = await _parseAngularSettings(settings);
 
   // eslint-disable-next-line no-console
   console.log('Starting webpack-dev-server...');
