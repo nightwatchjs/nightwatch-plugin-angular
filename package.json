@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "eslint": "eslint index.js src nightwatch",
-    "test": "nightwatch --env vue --headless",
-    "test-unit": "mocha test/unit",
-    "test-react": "nightwatch --env react --headless"
+    "test-unit": "mocha test/unit"
   },
   "keywords": [
     "nightwatch",
@@ -33,6 +31,8 @@
     "LICENSE"
   ],
   "devDependencies": {
-    "eslint": "^8.36.0"
+    "eslint": "^8.36.0",
+    "mocha": "^10.2.0",
+    "mockery": "^2.1.0"
   }
 }
