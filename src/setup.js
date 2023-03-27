@@ -5,6 +5,11 @@ const AngularConfigurator = require('./angularConfigurator');
 const WebpackController = require('./webpackController');
 
 
+/**
+ * Parse plugin settings and set default values.
+ * @param {object} settings Nightwatch settings object
+ * @returns 
+ */
 async function _parseAngularSettings(settings) {
   settings['@nightwatch/angular'] = settings['@nightwatch/angular'] || {};
   const angularSettings = settings['@nightwatch/angular'];
@@ -13,34 +18,47 @@ async function _parseAngularSettings(settings) {
     angularSettings.projectRoot = angularSettings.projectRoot || './'; // default to current directory
     angularSettings.projectRoot = path.resolve(angularSettings.projectRoot);
 
-    if (angularSettings && angularSettings.projectRoot) {
-      if ((await fs.stat(angularSettings.projectRoot)).isDirectory()) {
-        return angularSettings;
-      }
+    if ((await fs.stat(angularSettings.projectRoot)).isDirectory()) {
+      return angularSettings;
     }
   } catch (err) {
-    // nothing
-  }
-
-  const error = new Error('Missing projectRoot for angular plugin');
-  const code = `:
-
-    // nightwatch.conf.js
-
-    module.exports = {
-      plugins: ['@nightwatch/angular'],
-      '@nightwatch/angular': {
-        projectRoot: 'path/to/angular/project'
+    const error = new Error('Invalid projectRoot for angular plugin: ', angularSettings.projectRoot);
+    const code = `:
+  
+      // nightwatch.conf.js
+  
+      module.exports = {
+        plugins: ['@nightwatch/angular'],
+        '@nightwatch/angular': {
+          projectRoot: 'path/to/angular/project'
+        }
       }
-    }
-    `;
-  error.help = ['Please ensure that "projectRoot" is configured properly in your Nightwatch config file ' + code];
-  error.link = 'https://nightwatchjs.org/guide/component-testing/testing-angular-components.html';
+      `;
+    error.help = ['Please ensure that "projectRoot" is configured properly in your Nightwatch config file ' + code];
+    error.link = 'https://nightwatchjs.org/guide/component-testing/testing-angular-components.html';
 
-  throw error;
+    throw error;
+  }
 }
 
+/**
+ * Verify if angular is installed in the specified project root
+ * @param {string} projectRoot path to angular project
+ */
+function _validateProjectRoot(projectRoot) {
+  try {
+    require.resolve('@angular/core', {
+      paths: [projectRoot]
+    });
+  } catch (err) {
+    throw new Error(`Cannot find angular project within specified projectRoot: ${projectRoot}`);
+  }
+}
 
+/**
+ * Add files required to bootstrap angular component tests using webpack
+ * @param {string} projectRoot path to angular project
+ */
 async function _addSupportFiles(projectRoot) {
   const nightwatchCachePath = path.join(projectRoot, 'nightwatch', '.cache');
 
@@ -65,12 +83,16 @@ async function _addSupportFiles(projectRoot) {
   }
 }
 
-
+/**
+ * Called from global hook, configures and starts a webpack dev server for compiling and rendering angular components
+ * @param {object} settings Nightwatch settings object
+ */
 module.exports = async function(settings) {
   const angularSettings = await _parseAngularSettings(settings);
+  _validateProjectRoot(angularSettings.projectRoot);
 
   // eslint-disable-next-line no-console
-  console.log('Starting webpack-dev-server...');
+  console.log('Starting webpack-dev-server for angular component tests...');
 
   await _addSupportFiles(angularSettings.projectRoot);
 

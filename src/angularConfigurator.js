@@ -37,7 +37,6 @@ class AngularConfigurator {
     };
   }
 
-
   async _loadAngularJson() {
     const angularJsonPath = path.resolve(this.projectRoot, 'angular.json');
 
@@ -49,7 +48,6 @@ class AngularConfigurator {
       throw new Error(`Failed to load angular.json from angular project: ${angularJsonPath}`);
     }
   }
-
 
   async _getProjectConfig() {
     const angularJson = await this._loadAngularJson();
@@ -143,7 +141,6 @@ class AngularConfigurator {
     };
   }
 
-
   _sourceFramework(projectRoot) {
     const sourceOfWebpack = '@angular-devkit/build-angular';
 
@@ -203,7 +200,6 @@ class AngularConfigurator {
     return webpackDevServer;
   }
 
-
   _sourceHtmlWebpackPlugin() {
     const htmlWebpackPlugin = {};
     let htmlWebpackPluginJsonPath;
@@ -236,7 +232,6 @@ class AngularConfigurator {
     };
   }
 
-
   _createFakeContext(projectRoot, defaultProjectConfig, logging) {
     const logger = new logging.Logger('nightwatch-angular-plugin');
 
@@ -257,7 +252,6 @@ class AngularConfigurator {
 
     return context;
   }
-
 
   async createWebpackConfig() {
     // Load necessary modules from angular-devkit 
