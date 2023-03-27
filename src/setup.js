@@ -22,11 +22,11 @@ async function _parseAngularSettings(settings) {
       return angularSettings;
     }
   } catch (err) {
-    const error = new Error('Invalid projectRoot for angular plugin: ', angularSettings.projectRoot);
+    const error = new Error(`Invalid projectRoot for angular plugin: ${angularSettings.projectRoot}`);
     const code = `:
-  
+
       // nightwatch.conf.js
-  
+
       module.exports = {
         plugins: ['@nightwatch/angular'],
         '@nightwatch/angular': {
