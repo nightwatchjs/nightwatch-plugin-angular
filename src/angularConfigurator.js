@@ -1,6 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 
+
 class AngularConfigurator {
   static angularDevkitModules = [
     '@angular-devkit/build-angular/src/utils/webpack-browser-config.js',
@@ -9,11 +10,13 @@ class AngularConfigurator {
     '@angular-devkit/core/src/index.js'
   ];
 
+  #projectRoot;
+
   constructor({projectRoot}) {
-    this.projectRoot = projectRoot;
+    this.#projectRoot = projectRoot;
   }
 
-  _loadAngularDevkitModules() {
+  #loadAngularDevkitModules() {
     const [
       {generateBrowserWebpackConfigFromContext},
       {getCommonConfig},
@@ -21,7 +24,7 @@ class AngularConfigurator {
       {logging}
     ] = AngularConfigurator.angularDevkitModules.map((dep) => {
       try {
-        const depPath = require.resolve(dep, {paths: [this.projectRoot]});
+        const depPath = require.resolve(dep, {paths: [this.#projectRoot]});
 
         return require(depPath);
       } catch (e) {
@@ -37,8 +40,8 @@ class AngularConfigurator {
     };
   }
 
-  async _loadAngularJson() {
-    const angularJsonPath = path.resolve(this.projectRoot, 'angular.json');
+  async #loadAngularJson() {
+    const angularJsonPath = path.resolve(this.#projectRoot, 'angular.json');
 
     try {
       const angularJson = await fs.readFile(angularJsonPath, 'utf8');
@@ -49,8 +52,8 @@ class AngularConfigurator {
     }
   }
 
-  async _getProjectConfig() {
-    const angularJson = await this._loadAngularJson();
+  async #getProjectConfig() {
+    const angularJson = await this.#loadAngularJson();
 
     let {defaultProject} = angularJson;
 
@@ -79,11 +82,11 @@ class AngularConfigurator {
     };
   }
 
-  async _generateTsConfig() {
-    const nightwatchCachePath =  path.join(this.projectRoot, 'nightwatch', '.cache');
+  async #generateTsConfig() {
+    const nightwatchCachePath =  path.join(this.#projectRoot, 'nightwatch', '.cache');
 
     const tsConfigContent = JSON.stringify({
-      extends: path.join(this.projectRoot, 'tsconfig.json'),
+      extends: path.join(this.#projectRoot, 'tsconfig.json'),
       include: [`${nightwatchCachePath}/*.ts`]
     });
 
@@ -94,7 +97,7 @@ class AngularConfigurator {
     return tsConfigPath;
   }
 
-  _getAngularBuildOptions(buildOptions, tsConfig) {
+  #getAngularBuildOptions(buildOptions, tsConfig) {
 
     //TODO: go through all the configs and check if there are unnecessary ones
     // Ref: https://github.com/angular/angular-cli/blob/main/packages/angular_devkit/build_angular/src/builders/browser/schema.json
@@ -141,7 +144,7 @@ class AngularConfigurator {
     };
   }
 
-  _sourceFramework(projectRoot) {
+  #sourceFramework(projectRoot) {
     const sourceOfWebpack = '@angular-devkit/build-angular';
 
 
@@ -167,7 +170,7 @@ class AngularConfigurator {
     }
   }
 
-  _sourceWebpack(framework) {
+  #sourceWebpack(framework) {
     // TODO: make sure this is always present
     const searchRoot = framework.importPath;
 
@@ -184,7 +187,7 @@ class AngularConfigurator {
     };
   }
 
-  _sourceWebpackDevServer(framework) {
+  #sourceWebpackDevServer(framework) {
     const searchRoot = framework.importPath;
 
     const webpackDevServer = {};
@@ -200,7 +203,7 @@ class AngularConfigurator {
     return webpackDevServer;
   }
 
-  _sourceHtmlWebpackPlugin() {
+  #sourceHtmlWebpackPlugin() {
     const htmlWebpackPlugin = {};
     let htmlWebpackPluginJsonPath;
 
@@ -218,11 +221,11 @@ class AngularConfigurator {
     return htmlWebpackPlugin;
   }
 
-  _requireAngularWebpackDependencies() {
-    const framework = this._sourceFramework(this.projectRoot);
-    const webpack = this._sourceWebpack(framework);
-    const webpackDevServer = this._sourceWebpackDevServer(framework);
-    const htmlWebpackPlugin = this._sourceHtmlWebpackPlugin(framework);
+  #requireAngularWebpackDependencies() {
+    const framework = this.#sourceFramework(this.#projectRoot);
+    const webpack = this.#sourceWebpack(framework);
+    const webpackDevServer = this.#sourceWebpackDevServer(framework);
+    const htmlWebpackPlugin = this.#sourceHtmlWebpackPlugin(framework);
 
     return {
       framework,
@@ -232,7 +235,7 @@ class AngularConfigurator {
     };
   }
 
-  _createFakeContext(projectRoot, defaultProjectConfig, logging) {
+  #createFakeContext(projectRoot, defaultProjectConfig, logging) {
     const logger = new logging.Logger('nightwatch-angular-plugin');
 
     const context = {
@@ -260,16 +263,16 @@ class AngularConfigurator {
       getCommonConfig,
       getStylesConfig,
       logging
-    } = this._loadAngularDevkitModules();
+    } = this.#loadAngularDevkitModules();
 
-    const projectConfig = await this._getProjectConfig();
+    const projectConfig = await this.#getProjectConfig();
 
     // needed to add nightwatch specific files to compilation path
-    const tsConfig = await this._generateTsConfig();
+    const tsConfig = await this.#generateTsConfig();
 
-    const buildOptions = this._getAngularBuildOptions(projectConfig.buildOptions, tsConfig);
+    const buildOptions = this.#getAngularBuildOptions(projectConfig.buildOptions, tsConfig);
 
-    const context = this._createFakeContext(this.projectRoot, projectConfig, logging);
+    const context = this.#createFakeContext(this.#projectRoot, projectConfig, logging);
 
     const {config} = await generateBrowserWebpackConfigFromContext(
       buildOptions,
@@ -284,7 +287,7 @@ class AngularConfigurator {
 
     delete config.entry.main;
 
-    return {frameworkConfig: config, sourceWebpackModulesResult: this._requireAngularWebpackDependencies(this.projectRoot)};
+    return {frameworkConfig: config, sourceWebpackModulesResult: this.#requireAngularWebpackDependencies(this.#projectRoot)};
   }
 }
 

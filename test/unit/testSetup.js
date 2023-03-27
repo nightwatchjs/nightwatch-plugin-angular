@@ -22,7 +22,7 @@ class mockWebpackController {
 }
 
 
-describe('Angular Nightwatch Plugin test setup', function() {
+describe('test setup', function() {
 
   beforeEach(function() {
     mockery.enable({useCleanCache: true, warnOnReplace: false, warnOnUnregistered: false});
