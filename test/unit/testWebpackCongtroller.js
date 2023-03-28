@@ -4,7 +4,7 @@ const WebpackController = require('../../src/webpackController');
 
 describe('test webpack controller', ()=> {
 
-  it.only('should run webpack dev server', async ()=> {
+  it('should run webpack dev server', async ()=> {
 
     let port;
     var startCalled = false;

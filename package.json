@@ -6,7 +6,7 @@
   "scripts": {
     "eslint": "eslint index.js src nightwatch",
     "test-unit": "mocha test/unit",
-    "test-e2e": "nightwatch -e chrome --serial"
+    "test-e2e": "nightwatch -e chrome --serial --headless"
   },
   "keywords": [
     "nightwatch",
