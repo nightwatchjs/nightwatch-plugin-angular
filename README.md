@@ -9,7 +9,9 @@
 </p>
 
 [![Discord][discord-badge]][discord]
+[![Build Status][build-badge]][build]
 [![MIT License][license-badge]][license]
+[![version][version-badge]][package]
 
 Official Nightwatch plugin which adds component testing support for Angular apps. It uses the [Webpack DevServer](https://vitejs.dev/) under the hood. Requires Nightwatch 2.4+
 
@@ -82,12 +84,12 @@ module.exports = {
 # License
 MIT
 
-[build-badge]: https://github.com/nightwatchjs/vite-plugin-nightwatch/actions/workflows/tests.yml/badge.svg?branch=main
-[build]: https://github.com/nightwatchjs/vite-plugin-nightwatch/actions/workflows/vue-tests.yml
-[version-badge]: https://img.shields.io/npm/v/vite-plugin-nightwatch.svg?style=flat-square
-[package]: https://www.npmjs.com/package/vite-plugin-nightwatch
-[license-badge]: https://img.shields.io/npm/l/vite-plugin-nightwatch.svg?style=flat-square
-[license]: https://github.com/nightwatchjs/vite-plugin-nightwatch/blob/main/LICENSE
+[build-badge]: https://github.com/nightwatchjs/nightwatch-plugin-angular/actions/workflows/node.js.yml/badge.svg?branch=main
+[build]: https://github.com/nightwatchjs/nightwatch-plugin-angular/actions/workflows/node.js.yml
+[version-badge]: https://img.shields.io/npm/v/@nightwatch/angular.svg?style=flat-square
+[package]: https://www.npmjs.com/package/@nightwatch/angular
+[license-badge]: https://img.shields.io/npm/l/@nightwatch/angular.svg?style=flat-square
+[license]: https://github.com/nightwatchjs/@nightwatch/angular/blob/main/LICENSE
 [discord-badge]: https://img.shields.io/discord/618399631038218240.svg?color=7389D8&labelColor=6A7EC2&logo=discord&logoColor=ffffff&style=flat-square
 [discord]: https://discord.gg/SN8Da2X
 
