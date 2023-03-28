@@ -46,7 +46,7 @@ module.exports = {
   },
 
   '@nightwatch/angular': {
-    projectRoot: '/Users/binayakghosh/projects/nightwatch-plugin-angular/sandbox-v15'
+    projectRoot: 'sandbox-v15'
   },
 
   webdriver: {},
