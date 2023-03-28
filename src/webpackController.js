@@ -21,7 +21,7 @@ class WebpackController {
       port: this.devServerSettings.port,
       devMiddleware: {
         publicPath: WebpackController.publicPath,
-        stats: 'errors-only',
+        stats: this.devServerSettings.stats || 'errors-only',
         writeToDisk: true
       },
       hot: false,

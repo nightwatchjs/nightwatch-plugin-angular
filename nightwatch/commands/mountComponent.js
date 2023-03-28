@@ -16,7 +16,7 @@ module.exports = class Command {
     return this.client.settings['@nightwatch/angular'] || {};
   }
 
-  getError(message) {
+  #getError(message) {
     const err = new NightwatchMountError(message);
 
     err.showTrace = false;
@@ -28,7 +28,11 @@ module.exports = class Command {
     return err;
   }
 
-  static _normaliseComponentPath(componentPath) {
+  #normaliseComponentPath(componentPath) {
+    if (!path.isAbsolute(componentPath)) {
+      componentPath = path.resolve(this.pluginSettings.projectRoot, componentPath);
+    }
+
     const parts = path.parse(componentPath);
 
     if (parts.ext === '.ts') {
@@ -57,7 +61,7 @@ module.exports = class Command {
 
     componentPath = 
     await fs.writeFile(mountPointPath, `
-      import  * as MountComponent from '${Command._normaliseComponentPath(componentPath)}'
+      import  * as MountComponent from '${this.#normaliseComponentPath(componentPath)}'
 
       const classes = Object.keys(MountComponent)
 
@@ -98,10 +102,10 @@ module.exports = class Command {
       return document.querySelectorAll('#root0')[0].firstElementChild;
     });
 
-    if (!result) {
-      const err = this.getError('Could not mount the component.');
+    if (!result || result.error) {
+      const err = this.#getError('Could not mount the component.');
 
-      return err;
+      throw err;
     }
 
     const componentInstance = this.api.createElement(result, {
