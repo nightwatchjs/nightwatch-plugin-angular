@@ -27,10 +27,6 @@ Update your [Nightwatch configuration](https://nightwatchjs.org/guide/configurat
 module.exports = {
   plugins: ['@nightwatch/angular'],
 
-  '@nightwatch/angular': {
-    projectRoot: 'path/to/angular/project' // defaults to current directory
-  },
-
   // other nightwatch settings...
 }
 ```
@@ -56,9 +52,34 @@ it('Test Form Component', async function (browser) {
 });
 ```
 
+## Configuration
+### - projectRoot
+Nightwatch angular plugin needs to know the root directory of the angular project for which the tests are written. By default this is set as the current directory (`'./'`). This can be overridden using the projectRoot property like this:
 
+```js
+module.exports = {
 
-## License
+  '@nightwatch/angular': {
+    projectRoot: 'path/to/angular/project' // defaults to current directory
+  },
+
+  // other nightwatch settings...
+}
+```
+### - port
+The angular plugin uses webpack dev server to compile and render angular components. By default it uses port `5173` to serve the rendered pages. This can be overridden using the following configurations:
+```js
+module.exports = {
+
+  'webpack_dev_server': {
+    port: 10096 // defaults to 5173
+  },
+
+  // other nightwatch settings...
+}
+```
+
+# License
 MIT
 
 [build-badge]: https://github.com/nightwatchjs/vite-plugin-nightwatch/actions/workflows/tests.yml/badge.svg?branch=main

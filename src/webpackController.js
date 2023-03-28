@@ -5,18 +5,20 @@ class WebpackController {
   static devServerInstance;
   static compilerInstance;
 
-  constructor(config, settings) {
+  constructor(config = {}, settings = {}) {
+
     this.webpackConfig = config;
     this.angularSettings = settings['@nightwatch/angular'] || {};
     this.devServerSettings = settings.webpack_dev_server || {};
   }
 
-  webpackDevServer(compiler) {
+  #webpackDevServer(compiler) {
     const WebpackDevServer = this.webpackConfig.sourceWebpackModulesResult.webpackDevServer.module;
+    this.devServerSettings.port = this.devServerSettings.port || 5173;
 
     const webpackDevServerConfig = {
       host: '127.0.0.1',
-      port: this.devServerSettings.port || 5173,
+      port: this.devServerSettings.port,
       devMiddleware: {
         publicPath: WebpackController.publicPath,
         stats: 'errors-only',
@@ -60,7 +62,7 @@ class WebpackController {
 
     const webpackCompiler = webpack(this.webpackConfig.frameworkConfig);
 
-    return this.webpackDevServer(webpackCompiler);
+    return this.#webpackDevServer(webpackCompiler);
   }
 
   async start() {
@@ -75,7 +77,7 @@ class WebpackController {
     await server.start();
 
     if (!server.options.port) {
-      throw new Error(`Failed to start webpack-dev-server on port: ${server.options.port}`);
+      throw new Error(`Failed to start webpack-dev-server on port: ${this.devServerSettings.port}`);
     }
 
     return waitCompilation;
