@@ -1,12 +1,12 @@
 {
   "name": "@nightwatch/angular",
-  "version": "0.1.1",
+  "version": "3.0.0",
   "description": "Component testing plugin that integrates Angular with Nightwatch.js",
   "main": "index.js",
   "scripts": {
     "eslint": "eslint index.js src nightwatch",
     "test-unit": "mocha test/unit",
-    "test-e2e": "nightwatch -e chrome --serial --headless"
+    "test-e2e": "npx nightwatch -e chrome --serial --headless"
   },
   "keywords": [
     "nightwatch",
@@ -19,7 +19,6 @@
   "author": "Binayak Ghosh",
   "license": "MIT",
   "dependencies": {
-    "@types/nightwatch": "^2.3.22",
     "assertion-error": "^1.1.0",
     "html-webpack-plugin": "^5.5.0",
     "mkdirp": "^1.0.4"
@@ -32,10 +31,9 @@
     "LICENSE"
   ],
   "devDependencies": {
-    "chromedriver": "^111.0.0",
     "eslint": "^8.36.0",
     "mocha": "^10.2.0",
     "mockery": "^2.1.0",
-    "nightwatch": "^2.6.19"
+    "nightwatch": "3.0.0"
   }
 }
