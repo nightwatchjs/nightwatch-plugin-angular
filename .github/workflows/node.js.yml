@@ -27,6 +27,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm i
+    - run: cd sandbox-v15 && npm i && cd ..
     - run: npm run eslint
     - run: npm run test-unit
     - run: npm run test-e2e
